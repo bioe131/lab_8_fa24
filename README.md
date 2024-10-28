@@ -5,10 +5,10 @@ This lab will essentially walk you through the JBrowse2 Genome Browser tutorial 
 
 https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/cpz1.1120
 
-At the end, you will have a little interactive web app that lets you browse annotations in the human genome.
+At the end, you will have a little interactive web app that lets you browse annotations in the human genome. The same sort of browser can easily be made for all kinds of organisms, so long as appropriate data are available!
 
-## 1. Platform differences
-It should be possible to run the tutorial on either a Mac OS computer (Intel or M1), a Windows computer (Windows 10 or later), or a machine that runs a linux distribution. However, there are a few platform specific setup details: specifically, some of the necessary bioinformatics tools (like samtools) are only available pre-compiled for Unix operating systems, making Windows Subsystem for Linux an important tool - if you want to use a Windows machine for bioinformatics, this is going to be a crucial tool for many things. Please follow the platform-specific instructions below before proceeding to the "Install necessary tools" section.
+## 1. Platform specific setup
+It should be possible to run the tutorial on either a macOS computer (Intel or M1), a Windows computer (Windows 10 or later), or a machine that runs a linux distribution. However, there are a few platform specific setup details: specifically, some of the necessary bioinformatics tools (like samtools) are only available pre-compiled for Unix operating systems, making Windows Subsystem for Linux an important tool. If you want to use a Windows machine for bioinformatics, this is going to be a crucial tool for many things. Please follow the platform-specific instructions below before proceeding to the "Install necessary tools" section.
 
 ### 1.1. Mac OS setup
 Open a terminal and run the line below to install homebrew, a macOS package manager. This will make it easy for you to install necessary packages like apache2 and samtools. _You can skip this step if you already have brew installed._ 
@@ -19,21 +19,20 @@ Open a terminal and run the line below to install homebrew, a macOS package mana
 If this doesn't work, visit https://docs.brew.sh/Installation for further installation options, including a .pkg installer that should be convenient and easy to use.
 
 ### 1.2. Windows setup
-Enable and set up Windows Subsystem for Linux, using the default Ubuntu distribution. 
+Enable and set up Windows Subsystem for Linux, using the default Ubuntu distribution. _You can skip these steps if you already have WSL set up with a Debian or Ubuntu distribution._
 
-For newer versions of Windows, this command should handle it for you. Further details can be found at https://learn.microsoft.com/en-us/windows/wsl/install. 
-
-_You can skip these steps if you already have WSL set up with a Debian or Ubuntu distribution._
+For newer versions of Windows, this command should handle it for you. Further details can be found at https://learn.microsoft.com/en-us/windows/wsl/install. You should restart your computer after the install is done. 
 
 ```
+# this command installs the default linux distribution for your Windows OS, which should be an acceptable Ubuntu version
 wsl --install
 ```
 
 You can check that `wsl` was installed properly by running `wsl -l -v`. If you are running an older Windows 10 version, you may instead need to follow the instructions here: https://learn.microsoft.com/en-us/windows/wsl/install-manual. (In this case, you have to select your Ubuntu version. We recommend Ubuntu 22.04.)
 
-Next, set up your Linux username and password. You can launch WSL from the start menu and follow the prompts (see https://learn.microsoft.com/en-us/windows/wsl/setup/environment#set-up-your-linux-username-and-password). Make sure to record the password you choose, although when you launch WSL in future it should automatically sign you in.
+Next, set up your Linux username and password. You can launch WSL the first time from the start menu by searching Ubuntu or you can use `windows key+r`, type `wsl` and press `enter`. Once launched, follow the prompts (see https://learn.microsoft.com/en-us/windows/wsl/setup/environment#set-up-your-linux-username-and-password). Make sure to record the password you choose, although when you launch WSL in future it should automatically sign you in.
 
-**For all subsequent steps, run from within the WSL virtual machine. This way, you should be able to seemlessly run Unix applications and use the Linux instructions in subsequent steps.**
+For all subsequent steps, run from within the WSL virtual machine. You should be able to start wsl after initial setup by typing `wsl` in the command line shell or by using the start menu. This way, you should be able to seamlessly run Unix applications and use the Linux instructions in subsequent steps.
 
 ### 1.3. Linux setup
 Make sure you are using a Debian or Ubuntu distribution. If you are, there should be no setup required before moving on. 
@@ -68,7 +67,7 @@ jbrowse --version
 ### 2.3. System dependencies
 Install wget (if not already installed), apache2, samtools, and tabix. 
 
-wget is a tool for retrieving files over widely-used Internet protocols. 
+wget is a tool for retrieving files over widely-used Internet protocols like HTTP and FTP. 
 
 apache2 allows you to run a web server on your machine.
 
@@ -83,6 +82,7 @@ sudo apt install wget apache2 samtools tabix
 macOS
 
 ```
+# note that apache2 gets installed as httpd for macOS, which is the servive you will launch later
 brew install wget apache2 samtools tabix
 ```
 
@@ -102,23 +102,26 @@ sudo brew services start httpd
 
 Windows WSL2
 ```
-# run the linux server launch command to launch the service
-cat /etc/resolv.conf
+# from within WSL, run the linux server launch command to launch the service, then print out you WSL IP address so you can access the server from your Windows browser
+# if the ip command isn't recognized, install iproute and then try again
+# sudo apt install iproute2
+ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1
 ```
-The cat command will print out network configuration information, including the `nameserver` value, such as `nameserver 34.118.224.10`. 
+This should give you an ip address you can use to access the web server.
 
 ### 3.2. Access the web server
-Open a browser and type `http://localhost:8080/` into the address bar. You should then get to a page that says "**It works!**". If you are using WSL2 on Windows, then instead go to `http://XX.XXX.XXX.XX:8080/`, where Xs are replaced with the appropriate nameserver IP address. 
+Open a browser and type `http://localhost:8080/` into the address bar. You should then get to a page that says "**It works!**". If you are using WSL2 on Windows, then instead go to `http://XX.XXX.XXX.XX:8080/`, where Xs are replaced with the appropriate IP address from above. If you have trouble accessing the server, you can try checking your firewall settings and disabling any VPNs or proxies to make sure traffic to localhost is allowed.
 
 ### 3.4. Verify apache2 server folder
 Apache2 web servers serve files from within a root directory. This is configurable in the httpd.conf configuration file, but you shouldn't have to change it. For a normal linux installation, the folder should be `/var/www` or `/var/www/html`, whereas when you install on macOS using brew it will likely be in `/opt/homebrew/var/www` or `/opt/homebrew/var/www/html`. Verify that one of these folders exists (it should currently be empty, but we will now populate it with JBrowse 2). If you have e.g. a www folder with no www/html folder, and your web server is showing the "It works!" message, you can assume that the www one is the root directory. 
 
 Take note of what the folder is, and use the command below to store it as a command-line variable.
 ```
+# be sure to replace the path with your actual true path!
 export APACHE_ROOT='/path/to/rootdir'
 ```
 ### 3.5. Download JBrowse 2
-First create a temporary working directory as a staging area. You can use any folder you want, but moving forward we are assuming ~/tmp in your home folder.
+First create a temporary working directory as a staging area. You can use any folder you want, but moving forward we are assuming you created ~/tmp in your home folder.
 
 ```
 mkdir ∼/tmp
@@ -134,7 +137,7 @@ sudo chown -R $(whoami) $APACHE_ROOT/jbrowse2
 ```
 
 ### 3.6. Test your jbrowse install
-In your browser, now type in `http://yourhost/jbrowse2/`, where yourhost is either localhost or the IP address from earlier. Now you should see the words "**It worked!**" with a green box underneath saying "JBrowse 2 is installed." wit some additional details. 
+In your browser, now type in `http://yourhost/jbrowse2/`, where yourhost is either localhost or the IP address from earlier. Now you should see the words "**It worked!**" with a green box underneath saying "JBrowse 2 is installed." with some additional details. 
 
 ## 4. Load and process test data
 ### 4.1. Download and process reference genome
