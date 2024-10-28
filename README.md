@@ -41,7 +41,29 @@ Make sure you are using a Debian or Ubuntu distribution. If you are, there shoul
 ### 2.1. Node.js
 Node.js is a cross-platform JavaScript runtime environment that will make is easy to run JBrowse2 command-line tools.
 
-The following install code should run on both macOS and Linux. See https://nodejs.org/en/download/package-manager for more detail.
+First, check whether Node.js is already installed by running the following. If node v20 is already installed, you can skip to the next step.
+
+```
+node -v
+```
+
+If Node.js is not installed, install it. On macOS, you can use brew. You may need to restart the terminal (close and open a new one) to get `node -v` to run.
+
+```
+# NOTE:
+# Homebrew is not a Node.js package manager.
+# Please ensure it is already installed on your system.
+# Follow official instructions at https://brew.sh/
+# Homebrew only supports installing major Node.js versions and might not support the latest Node.js version from the 20 release line.
+# download and install Node.js
+brew install node@20
+# verifies the right Node.js version is in the environment
+node -v # should print `v20.18.0`
+# verifies the right npm version is in the environment
+npm -v # should print `10.8.2`
+```
+
+For Linux, you can use the code below. See https://nodejs.org/en/download/package-manager for more detail.
 
 ```
 # installs fnm (Fast Node Manager)
@@ -83,7 +105,7 @@ macOS
 
 ```
 # note that apache2 gets installed as httpd for macOS, which is the servive you will launch later
-brew install wget apache2 samtools tabix
+brew install wget httpd samtools htslib
 ```
 
 ## 3. Apache server setup
@@ -113,13 +135,19 @@ This should give you an ip address you can use to access the web server.
 Open a browser and type `http://localhost:8080/` into the address bar. You should then get to a page that says "**It works!**". If you are using WSL2 on Windows, then instead go to `http://XX.XXX.XXX.XX:8080/`, where Xs are replaced with the appropriate IP address from above. If you have trouble accessing the server, you can try checking your firewall settings and disabling any VPNs or proxies to make sure traffic to localhost is allowed.
 
 ### 3.4. Verify apache2 server folder
-Apache2 web servers serve files from within a root directory. This is configurable in the httpd.conf configuration file, but you shouldn't have to change it. For a normal linux installation, the folder should be `/var/www` or `/var/www/html`, whereas when you install on macOS using brew it will likely be in `/opt/homebrew/var/www` or `/opt/homebrew/var/www/html`. Verify that one of these folders exists (it should currently be empty, but we will now populate it with JBrowse 2). If you have e.g. a www folder with no www/html folder, and your web server is showing the "It works!" message, you can assume that the www one is the root directory. 
+Apache2 web servers serve files from within a root directory. This is configurable in the httpd.conf configuration file, but you shouldn't have to change it. For a normal linux installation, the folder should be `/var/www` or `/var/www/html`, whereas when you install on macOS using brew it will likely be in `/opt/homebrew/var/www` or `/usr/local/var/www`. (You can run `brew --prefix` to get the brew install location, and then from there it is in the `var/www` folder) Verify that one of these folders exists (it should currently be empty, but we will now populate it with JBrowse 2). If you have e.g. a www folder with no www/html folder, and your web server is showing the "It works!" message, you can assume that the www one is the root directory. 
 
 Take note of what the folder is, and use the command below to store it as a command-line variable.
 ```
 # be sure to replace the path with your actual true path!
 export APACHE_ROOT='/path/to/rootdir'
 ```
+
+If you are really struggling to find the APACHE_ROOT folder, you could try searching for it.
+```
+sudo find / -name "www" 2>/dev/null
+```
+
 ### 3.5. Download JBrowse 2
 First create a temporary working directory as a staging area. You can use any folder you want, but moving forward we are assuming you created ~/tmp in your home folder.
 
