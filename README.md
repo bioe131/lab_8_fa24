@@ -8,7 +8,7 @@ https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/cpz1.1120
 At the end, you will have a little interactive web app that lets you browse annotations in the human genome. The same sort of browser can easily be made for all kinds of organisms, so long as appropriate data are available!
 
 ## 1. Platform specific setup
-It should be possible to run the tutorial on either a macOS computer (Intel or M1), a Windows computer (Windows 10 or later), or a machine that runs a linux distribution. However, there are a few platform specific setup details: specifically, some of the necessary bioinformatics tools (like samtools) are only available pre-compiled for Unix operating systems, making Windows Subsystem for Linux an important tool. If you want to use a Windows machine for bioinformatics, this is going to be a crucial tool for many things. Please follow the platform-specific instructions below before proceeding to the "Install necessary tools" section.
+It should be possible to run the tutorial on either a macOS computer (Intel or M1), a Windows computer (Windows 10 or later), or Amazon Web Services (AWS). However, there are a few platform specific setup details: specifically, some of the necessary bioinformatics tools (like samtools) are only available pre-compiled for Unix operating systems, making Windows Subsystem for Linux an important tool. If you want to use a Windows machine for bioinformatics, this is going to be a crucial tool for many things. Please follow the platform-specific instructions below before proceeding to the "Install necessary tools" section.
 
 ### 1.1. Mac OS setup
 Open a terminal and run the line below to install homebrew, a macOS package manager. This will make it easy for you to install necessary packages like apache2 and samtools. _You can skip this step if you already have brew installed._ 
@@ -32,10 +32,37 @@ You can check that `wsl` was installed properly by running `wsl -l -v`. If you a
 
 Next, set up your Linux username and password. You can launch WSL the first time from the start menu by searching Ubuntu or you can use `windows key+r`, type `wsl` and press `enter`. Once launched, follow the prompts (see https://learn.microsoft.com/en-us/windows/wsl/setup/environment#set-up-your-linux-username-and-password). Make sure to record the password you choose, although when you launch WSL in future it should automatically sign you in.
 
-For all subsequent steps, run from within the WSL virtual machine. You should be able to start wsl after initial setup by typing `wsl` in the command line shell or by using the start menu. This way, you should be able to seamlessly run Unix applications and use the Linux instructions in subsequent steps.
+For all subsequent steps, run from within the WSL virtual machine. You should be able to start wsl after initial setup by typing `wsl` in the command line shell or by using the start menu. This way, you should be able to seamlessly run Unix applications and use the Linux instructions in subsequent steps. You will need to install homebrew in step 1.4. in order to get samtools and htslib (which includes tabix). 
 
-### 1.3. Linux setup
-Make sure you are using a Debian or Ubuntu distribution. If you are, there should be no setup required before moving on. 
+### 1.3. AWS Setup
+
+Follow the separate AWS setup guide, then return here to set up homebrew below.
+
+### 1.4. Homebrew for WSL or AWS
+Make sure you are using a Debian or Ubuntu distribution. Then go ahead and install homebrew, using the instructions below:
+
+switch to root with:
+
+`sudo su -`
+Then run:
+
+`passwd ubuntu`
+It is going to prompt :
+
+`Enter new UNIX password:`
+So, set your password. Then exit root by typing `exit`.
+
+Install brew using the bash script from https://brew.sh/:
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+After this is complete, add brew to your execution path:
+```
+echo >> /home/ubuntu/.bashrc
+echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/ubuntu/.bashrc
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+```
 
 ## 2. Install necessary tools
 ### 2.1. Node.js
@@ -65,6 +92,10 @@ npm -v # should print `10.8.2`
 
 For Linux, you can use the code below. See https://nodejs.org/en/download/package-manager for more detail.
 
+On AWS and some other Linux setups, you may need to run `sudo apt install unzip` first.
+
+**Note: `sudo`, also known as "super user do", runs commands with root/admin privileges. This can cause harm to your machine if you run the wrong command!**
+
 ```
 # installs fnm (Fast Node Manager)
 curl -fsSL https://fnm.vercel.app/install | bash
@@ -86,6 +117,8 @@ sudo npm install -g @jbrowse/cli
 jbrowse --version
 ```
 
+You can also try installing using just `npm install -g @jbrowse/cli` if the sudo version doesn't run. 
+
 ### 2.3. System dependencies
 Install wget (if not already installed), apache2, samtools, and tabix. 
 
@@ -98,7 +131,11 @@ samtools and tabix, as we have learned earlier in the course, are tools for proc
 Linux
 
 ```
-sudo apt install wget apache2 samtools tabix
+sudo apt install wget apache2
+```
+
+```
+brew install samtools htslib
 ```
 
 macOS
@@ -117,12 +154,17 @@ Linux
 sudo service apache2 start
 ```
 
+
 macOS
 ```
 sudo brew services start httpd
 ```
 
-Windows WSL2
+### 3.2. Getting the host
+If you are running locally on your mac, the hostname is just `localhost`. However, for WSL and AWS, you will need to do a bit of work to find the right ip address.
+For local hosting, the url will be `http://localhost:8080/` or `http://XX.XXX.XXX.XX:8080/`, where Xs are replaced with the appropriate IP address from the WSL steps below.
+
+WSL:
 ```
 # from within WSL, run the linux server launch command to launch the service, then print out you WSL IP address so you can access the server from your Windows browser
 # if the ip command isn't recognized, install iproute and then try again
@@ -131,8 +173,11 @@ ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1
 ```
 This should give you an ip address you can use to access the web server.
 
-### 3.2. Access the web server
-Open a browser and type `http://localhost:8080/` into the address bar. You should then get to a page that says "**It works!**". If you are using WSL2 on Windows, then instead go to `http://XX.XXX.XXX.XX:8080/`, where Xs are replaced with the appropriate IP address from above. If you have trouble accessing the server, you can try checking your firewall settings and disabling any VPNs or proxies to make sure traffic to localhost is allowed.
+AWS:
+In your instance summary page, there should be an "auto-assigned IP address." Your web server can be accessed at `http://ipaddress`. You don't need to provide a port.
+
+### 3.3. Access the web server
+Open a browser and type the appropriate url into the address bar. You should then get to a page that says "**It works!**". If you have trouble accessing the server, you can try checking your firewall settings and disabling any VPNs or proxies to make sure traffic to localhost is allowed.
 
 ### 3.4. Verify apache2 server folder
 Apache2 web servers serve files from within a root directory. This is configurable in the httpd.conf configuration file, but you shouldn't have to change it. For a normal linux installation, the folder should be `/var/www` or `/var/www/html`, whereas when you install on macOS using brew it will likely be in `/opt/homebrew/var/www` or `/usr/local/var/www`. (You can run `brew --prefix` to get the brew install location, and then from there it is in the `var/www` folder) Verify that one of these folders exists (it should currently be empty, but we will now populate it with JBrowse 2). If you have e.g. a www folder with no www/html folder, and your web server is showing the "It works!" message, you can assume that the www one is the root directory. 
@@ -153,6 +198,8 @@ First create a temporary working directory as a staging area. You can use any fo
 
 ```
 mkdir ∼/tmp
+```
+```
 cd ∼/tmp
 ```
 
