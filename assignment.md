@@ -1,6 +1,10 @@
 # Lab 8 gene exploration
 
-Follow the README instructions to set up your genome browser, then complete the two questions below.
+Follow the README instructions to set up your genome browser.
+
+Using the gene search function you've set up, look up a gene with disease-relevant function. You can use any academic articles you like to identify a gene of interest - one example might be to look up a cancer repressor gene, or a gene from your metabolic pathway lab earlier in the semester that might have mutations associated with metabolic diseases.
+
+Then, complete the two questions below.
 
 ## 1. Gene of interest identification
 Explain why you chose your gene of interest, and what its function is. What diseases might it be relevant to, and why? 
