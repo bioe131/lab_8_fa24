@@ -3,10 +3,10 @@
 Amazon Web Services provides a powerful platform for web hosting and running a wide variety of heavy-lift-compute tasks. With great power, however, comes responsibility: be careful when starting up instances, to make sure you aren't starting one that will charge you a bunch of money, and be sure to pause your instances when you aren't using them. Terminate the instance when you are done with it.
 
 ## 1. Create an account with a free trial
-First, if you don't already have an account, create one at https://aws.amazon.com/free/. 
+First, if you don't already have an account, create one with a free trial at https://aws.amazon.com/free/. You will need a credit card, but you can use only free services so you don't get charged anything. Amazon customer service is also pretty forgiving if you mess up - but best to avoid anything that will get you charged any money.
 
 ## 2. Navigate to launch instance
-Sign into the console and find the link for EC2
+Go to the AWS Management Console and find the link for EC2, either from the landing page or the Service menu.
 
 ![EC2](./screenshots/Screen%20Shot%202024-10-29%20at%203.46.15%20PM.png)
 
@@ -37,6 +37,16 @@ Click the connect button. That will take you through to a terminal session where
 
 ## 5. IP address for your web server
 
-The public IP address is highlighted below. You can access your apache web server, once you set it up, by simply going to `http://ipaddress` - no ports required.
+In the home page of EC2, you can find the link to a list of your active instances.
+
+![list of instances](./screenshots/Screen%20Shot%202024-10-29%20at%204.35.29%20PM.png)
+
+Click through to your instance. This will take you to the summary page. The public IP address is highlighted below. You can access your apache web server, once you set it up, by simply going to `http://ipaddress` - no ports required.
 
 ![public ip address](./screenshots/Screen%20Shot%202024-10-29%20at%202.53.28%20PM.png)
+
+## 6. Stopping, starting, or terminating your instance
+
+On your instance list, click the check box next to your instance and use the Instance state dropdown to select an option. Stop will suspend the instance whereas Terminate will permanently end it. Terminate when you are fully done with your AWS job.
+
+![Instance state dropdown](./screenshots/Screen%20Shot%202024-10-29%20at%204.03.40%20PM.png)
